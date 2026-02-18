@@ -1,0 +1,147 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
+local Terrain = workspace:FindFirstChildOfClass("Terrain")
+
+local gui = Instance.new("ScreenGui")
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
+gui.Parent = game:GetService("CoreGui")
+
+local bg = Instance.new("Frame")
+bg.Size = UDim2.new(1,0,1,0)
+bg.BackgroundColor3 = Color3.fromRGB(20,10,35)
+bg.Parent = gui
+
+local gradientBG = Instance.new("UIGradient", bg)
+gradientBG.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(40,0,60)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0,0,0))
+}
+gradientBG.Rotation = 45
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1,0,0.2,0)
+title.Position = UDim2.new(0,0,0.32,0)
+title.BackgroundTransparency = 1
+title.Text = "✨ LOADING ✨"
+title.TextColor3 = Color3.fromRGB(255,120,255)
+title.TextScaled = true
+title.Font = Enum.Font.GothamBold
+title.Parent = bg
+
+local stroke = Instance.new("UIStroke", title)
+stroke.Color = Color3.fromRGB(255,0,255)
+stroke.Thickness = 2
+
+local credit = Instance.new("TextLabel")
+credit.Size = UDim2.new(1,0,0.05,0)
+credit.Position = UDim2.new(0,0,0.92,0)
+credit.BackgroundTransparency = 1
+credit.Text = "Được làm bởi Yuki"
+credit.TextColor3 = Color3.fromRGB(255,150,255)
+credit.TextScaled = true
+credit.Font = Enum.Font.Gotham
+credit.Parent = bg
+
+local creditStroke = Instance.new("UIStroke", credit)
+creditStroke.Color = Color3.fromRGB(255,0,200)
+creditStroke.Thickness = 1.5
+
+local barBG = Instance.new("Frame")
+barBG.Size = UDim2.new(0.5,0,0.03,0)
+barBG.Position = UDim2.new(0.25,0,0.65,0)
+barBG.BackgroundColor3 = Color3.fromRGB(40,0,60)
+barBG.BorderSizePixel = 0
+barBG.Parent = bg
+Instance.new("UICorner", barBG).CornerRadius = UDim.new(1,0)
+
+local bar = Instance.new("Frame")
+bar.Size = UDim2.new(0,0,1,0)
+bar.BorderSizePixel = 0
+bar.Parent = barBG
+Instance.new("UICorner", bar).CornerRadius = UDim.new(1,0)
+
+local barGradient = Instance.new("UIGradient", bar)
+barGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(255,0,255)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(0,200,255))
+}
+
+bg.BackgroundTransparency = 1
+TweenService:Create(bg, TweenInfo.new(0.8), {BackgroundTransparency = 0}):Play()
+
+local tween = TweenService:Create(bar, TweenInfo.new(4, Enum.EasingStyle.Quad), {
+    Size = UDim2.new(1,0,1,0)
+})
+tween:Play()
+
+task.spawn(function()
+    while gui.Parent do
+        TweenService:Create(stroke, TweenInfo.new(1), {Transparency = 0.5}):Play()
+        TweenService:Create(creditStroke, TweenInfo.new(1), {Transparency = 0.5}):Play()
+        task.wait(1)
+        TweenService:Create(stroke, TweenInfo.new(1), {Transparency = 0}):Play()
+        TweenService:Create(creditStroke, TweenInfo.new(1), {Transparency = 0}):Play()
+        task.wait(1)
+    end
+end)
+
+local function applyFPSBoost()
+
+    pcall(function()
+        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+        setfpscap(240)
+    end)
+
+    Lighting.GlobalShadows = false
+    Lighting.FogEnd = 9e9
+    Lighting.Brightness = 0
+    Lighting.EnvironmentDiffuseScale = 0
+    Lighting.EnvironmentSpecularScale = 0
+
+    for _, v in pairs(Lighting:GetDescendants()) do
+        if v:IsA("PostEffect") then
+            v.Enabled = false
+        end
+    end
+
+    if Terrain then
+        Terrain.WaterWaveSize = 0
+        Terrain.WaterWaveSpeed = 0
+        Terrain.WaterReflectance = 0
+        Terrain.WaterTransparency = 1
+    end
+
+    for _, v in pairs(workspace:GetDescendants()) do
+        if v:IsA("BasePart") then
+            v.Material = Enum.Material.SmoothPlastic
+            v.Reflectance = 0
+            v.CastShadow = false
+        elseif v:IsA("Decal")
+        or v:IsA("Texture")
+        or v:IsA("SurfaceAppearance")
+        or v:IsA("ParticleEmitter")
+        or v:IsA("Trail")
+        or v:IsA("Fire")
+        or v:IsA("Smoke")
+        or v:IsA("Sparkles")
+        or v:IsA("Beam")
+        or v:IsA("Highlight") then
+            v:Destroy()
+        end
+    end
+end
+
+tween.Completed:Wait()
+applyFPSBoost()
+
+task.wait(0.5)
+
+local fadeOut = TweenService:Create(bg, TweenInfo.new(1), {
+    BackgroundTransparency = 1
+})
+fadeOut:Play()
+fadeOut.Completed:Wait()
+
+gui:Destroy()
