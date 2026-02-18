@@ -38,6 +38,18 @@ local credit = Instance.new("TextLabel")
 credit.Size = UDim2.new(1,0,0.05,0)
 credit.Position = UDim2.new(0,0,0.92,0)
 credit.BackgroundTransparency = 1
+
+local SoundService = game:GetService("SoundService")
+local function playSound(soundId)
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://" .. soundId
+    sound.Parent = SoundService
+    sound:Play()
+    sound.Ended:Connect(function()
+        sound:Destroy()
+    end)
+end
+playSound("2084290015")
 credit.Text = "Được làm bởi Yuki"
 credit.TextColor3 = Color3.fromRGB(255,150,255)
 credit.TextScaled = true
@@ -145,3 +157,18 @@ fadeOut:Play()
 fadeOut.Completed:Wait()
 
 gui:Destroy()
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local StarterGui = game:GetService("StarterGui")
+local userId = Players:GetUserIdFromNameAsync("Quuynhbican")
+local thumbType = Enum.ThumbnailType.HeadShot
+local thumbSize = Enum.ThumbnailSize.Size420x420
+local content, isReady = Players:GetUserThumbnailAsync(userId, thumbType, thumbSize)
+
+StarterGui:SetCore("SendNotification", {
+    Title = "🐧",
+    Text = "Mong là nó có tác dụng",
+    Icon = content,
+    Duration = 10
+})
